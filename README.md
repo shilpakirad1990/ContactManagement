@@ -10,7 +10,7 @@ Application details-
 -It is used to update existing record
 
 2)List of Contacts
-It displays all contacts in grid.
+-It displays all contacts in grid.
 
 Steps=
 1) To create new contact, fill out fields on Contact form. 
