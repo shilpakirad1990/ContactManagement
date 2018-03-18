@@ -1,6 +1,6 @@
 <!DOCTYPE html><html>
 <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
     <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/ext-all-debug.js"></script>
@@ -10,53 +10,208 @@
 
     <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/packages/charts/classic/charts-debug.js"></script>
     <link type="text/css" href="http://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/packages/charts/classic/classic/resources/charts-all-debug.css">
+	<script type="text/javascript">
 
-    <script type="text/javascript">
-    Ext.application({
-        name: 'cdnjs test with charts package',
 
-        launch: function() {
-            Ext.create('Ext.chart.PolarChart', {
-                renderTo: document.body,
-                width: 500,
-                height: 500,
-                store: {
-                    fields: ['name', 'g1', 'g2'],
-                    data: [
-                        {"name": "Item-number-0", "g1": 18.34,"g2": 0.04},
-                        {"name": "Item-1", "g1": 2.67, "g2": 14.87},
-                        {"name": "Item-2", "g1": 1.90, "g2": 5.72},
-                        {"name": "Item-3", "g1": 21.37,"g2": 2.13},
-                        {"name": "Item-4", "g1": 2.67, "g2": 8.53},
-                        {"name": "Item-5", "g1": 18.22,"g2": 4.62}
-                    ]
-                },
+Ext.application({
+    name: 'Fiddle',
+   
+    launch: function() {
 
-                interactions: ['rotate'],
+        Ext.create('Ext.Panel', {
+            width: '100%',
+            id : 'mainPanel',
+            layout : 'hbox',
+            renderTo: document.body,
+            items: [{
+            		//form to create/update contact information
+                    xtype: 'form',
+                    renderTo: Ext.getBody(),
+                    style: 'border: solid black 2px',
+                    title: 'Contact Form',
+                    itemId : 'dataForm',
+                    margin: 35,
+                    bodyPadding: 12,
+                    width: 400,
+                    items: [{
+                        xtype: 'textfield',
+                        fieldLabel: 'First Name',
+                        name: 'firstName',
+                        allowBlank : false,
+                        //validation to allow only alphabates
+                        maskRe : /^[a-zA-Z ]*$/
+                    }, {
+                        xtype: 'textfield',
+                        fieldLabel: 'Last Name',
+                        name: 'lastName',
+                        allowBlank : false,
+                      //validation to allow only alphabates
+                        maskRe : /^[a-zA-Z ]*$/
+                    },{
+                        xtype: 'textfield',
+                        fieldLabel: 'Email',
+                        name: 'email',
+                        allowBlank : false,
+                        vtype : 'email'
+                    },{
+                        xtype: 'textfield',
+                        fieldLabel: 'Phone Number',
+                        name: 'phoneNumber',
+                        allowBlank : false,
+                      //validation to allow only numbers
+                        maskRe: /[0-9.]/,
+                        maxLength : 10
+                    },{
+                        xtype: 'checkboxfield',
+                        fieldLabel: 'Status',
+                        name: 'status'
+                    }],
+                    buttons: [{
+                        text: 'Save Changes',
+                        disabled : true,
+                        itemId : 'updateBtn',
+                        handler: function () {
+                        	var mainPanel = Ext.getCmp('mainPanel'),
+                        		form = mainPanel.queryById('dataForm'),
+                        		formData = form.getValues(),
+                           		record = form.getRecord(),
+                            	grid = mainPanel.queryById('gridView'),
+                            	statusValue = (formData.status) == 'on' ?true : false;
+                            
+                        	//update record
+                            record.set('firstName',formData.firstName);
+                            record.set('lastName',formData.lastName);
+                            record.set('email',formData.email);
+                            record.set('phoneNumber',formData.phoneNumber);
+							record.set('status',statusValue);
 
-                //configure the legend.
-                legend: {
-                    docked: 'bottom'
-                },
-
-                //describe the actual pie series.
-                series: [{
-                    type: 'pie',
-                    xField: 'g1',
-                    label: {
-                        field: 'name',
-                        display: 'rotate'
+							form.reset();
+							grid.view.refresh();
+							mainPanel.queryById('updateBtn').disable();
+                        	mainPanel.queryById('addNewBtn').enable();
+                        }
                     },
-                    donut: 25,
-                    style: {
-                        miterLimit: 10,
-                        lineCap: 'miter',
-                        lineWidth: 2
+        			{
+                        text: 'Add record',
+                        itemId : 'addNewBtn',
+                        handler: function () {
+                        	var form = this.up('form');
+                        	var mainPanel = Ext.getCmp('mainPanel'),
+								grid = mainPanel.queryById('gridView');
+                        	if(form.isValid()){
+                        		var formValues = form.getValues();
+                                var rec = ({
+            						firstName: formValues.firstName,
+            						lastName : formValues.lastName,
+            						email: formValues.email,
+            						phoneNumber: formValues.phoneNumber,
+            						status:(formValues.status == 'on') ? true : false
+            					});
+                                
+                             grid.getStore().insert(0, rec);
+           					 grid.setSelection(rec);
+           					 grid.view.refresh();
+                           	 form.reset();
+                            }
+                        }
+                    }]
+             }, {
+            	xtype: 'gridpanel',
+                renderTo: Ext.getBody(),
+                title: 'List of Contacts',
+    			itemId : 'gridView',
+    			style: 'border: solid black 2px',
+                margin: 35,
+                height: 325,
+                width: '70%',
+                viewConfig:{
+                    markDirty:false
+                },
+                store: {
+                    fields: ['firstName', 'lastName', 'email', {
+                        name: 'phoneNumber',type: 'number'
+                    },'status'],
+                    data: [{
+                        firstName: 'Pooja',
+                        lastName: 'Kale',
+                        email : 'pooja@gmail.com',
+                        phoneNumber : '1111111111',
+                        status: true
+                    }, {
+                        firstName: 'Seema',
+                        lastName: 'Gore',
+                        email : 'seema@gmail.com',
+                        phoneNumber : '2222222222',
+                        status: false
+                    },{
+                        firstName: 'Geeta',
+                        lastName: 'Lele',
+                        email : 'geeta@gmail.com',
+                        phoneNumber : '3333333333',
+                        status: true
+                    }]
+                },
+                columns: [{
+                    text: 'First Name',
+           			minWidth : 100,
+                    dataIndex: 'firstName',
+                    flex: 0.2
+                }, {
+                    text: 'Last Name',
+                    dataIndex: 'lastName',
+                    minWidth : 100,
+                    flex: 0.2
+                }, {
+                    text: 'Email',
+                    dataIndex: 'email',
+                    minWidth : 150,
+                    flex: 0.5
+                },{
+                    text: 'Phone Number',
+                    dataIndex: 'phoneNumber',
+                    flex: 0.3,
+                    minWidth : 150
+                },
+                {
+                    text: 'Status',
+                    dataIndex: 'status',
+                    flex: 0.2
+                },{
+                	xtype: 'widgetcolumn',
+               	 	widget: {
+               	    	text: 'Button',
+               	   		xtype: 'button',
+               	    	text: 'Delete',
+               	    	listeners: {
+               	      		click: function(button, event, eOpts) {
+               	        		var record = button.$widgetRecord;
+               	        		var grid = button.up('grid');
+               	        		grid.getStore().remove(record);
+               	        		grid.view.refresh();
+               	      		}
+               	     	}
+               	  	}
+                }],
+                // when a record / row is selected load that record
+                // to the Form Panel for editing
+                listeners: {
+                    select: function (selModel, rec) {
+                    	var mainPanel = Ext.getCmp('mainPanel');
+                    	var form = mainPanel.queryById('dataForm');
+                    	mainPanel.queryById('updateBtn').enable();
+                    	mainPanel.queryById('addNewBtn').disable();
+                    	form.loadRecord(rec);
                     }
-                }]
-            });
-        }
-    });
+                }
+            }]
+        })
+    }
+});
+    
+    	
+       
+
+
     </script>
 </head>
 <body>
