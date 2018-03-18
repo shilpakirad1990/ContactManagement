@@ -67,7 +67,7 @@ Ext.application({
                         name: 'status'
                     }],
                     buttons: [{
-                        text: 'Save Changes',
+                        text: 'Update Changes',
                         disabled : true,
                         itemId : 'updateBtn',
                         handler: function () {
@@ -78,21 +78,23 @@ Ext.application({
                             	grid = mainPanel.queryById('gridView'),
                             	statusValue = (formData.status) == 'on' ?true : false;
                             
-                        	//update record
-                            record.set('firstName',formData.firstName);
-                            record.set('lastName',formData.lastName);
-                            record.set('email',formData.email);
-                            record.set('phoneNumber',formData.phoneNumber);
-							record.set('status',statusValue);
+                        	if(form.isValid()){
+                        		//update record
+                                record.set('firstName',formData.firstName);
+                                record.set('lastName',formData.lastName);
+                                record.set('email',formData.email);
+                                record.set('phoneNumber',formData.phoneNumber);
+    							record.set('status',statusValue);
 
-							form.reset();
-							grid.view.refresh();
-							mainPanel.queryById('updateBtn').disable();
-                        	mainPanel.queryById('addNewBtn').enable();
-                        }
+    							form.reset();
+    							grid.view.refresh();
+    							mainPanel.queryById('updateBtn').disable();
+                            	mainPanel.queryById('addNewBtn').enable();
+                        	}
+                         }
                     },
         			{
-                        text: 'Add record',
+                        text: 'Add new record',
                         itemId : 'addNewBtn',
                         handler: function () {
                         	var form = this.up('form');
@@ -126,7 +128,7 @@ Ext.application({
                 width: '70%',
                 viewConfig:{
                     markDirty:false
-                },
+                },	
                 store: {
                     fields: ['firstName', 'lastName', 'email', {
                         name: 'phoneNumber',type: 'number'
@@ -208,11 +210,7 @@ Ext.application({
     }
 });
     
-    	
-       
-
-
-    </script>
+</script>
 </head>
 <body>
 </body>
